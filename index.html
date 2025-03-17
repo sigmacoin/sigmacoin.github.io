@@ -48,18 +48,22 @@
         <h1>Sigma Coin Mining</h1>
         <p id="timer">Click the button to start mining.</p>
         <button id="mineButton" class="mine-button" onclick="startMining()"></button>
-        <div class="balance" id="balance">Sigma Coin Balance: 0.000</div>
+        <div class="balance" id="balance">Sigma Coin Balance: 0.0000</div>
     </div>
     
     <script>
         const miningInterval = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
         const hoursPerCoin = 16; // 16 hours of mining = 1 Sigma Coin
 
+        let miningStartTime = null;
+        let balanceInterval = null;
+
         function startMining() {
             const now = Date.now();
             localStorage.setItem("lastMineTime", now);
-            addMiningHours(6); // Add 6 hours of mining
+            miningStartTime = now;
             updateTimer();
+            startBalanceUpdate();
         }
 
         function updateTimer() {
@@ -85,6 +89,7 @@
                             mineButton.disabled = false;
                             timerText.innerHTML = "Click the button to start mining.";
                             clearInterval(interval);
+                            stopBalanceUpdate();
                         }
                     }, 1000);
                 } else {
@@ -97,17 +102,32 @@
             updateBalance();
         }
 
+        function startBalanceUpdate() {
+            // Update the balance every second
+            balanceInterval = setInterval(() => {
+                const now = Date.now();
+                const elapsed = now - miningStartTime;
+                const hoursMined = elapsed / (1000 * 60 * 60); // Convert milliseconds to hours
+                const totalHoursMined = (parseFloat(localStorage.getItem("totalHoursMined")) || 0) + hoursMined;
+                const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(4); // Show 4 decimal places
+                document.getElementById("balance").innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
+            }, 1000);
+        }
+
+        function stopBalanceUpdate() {
+            // Stop updating the balance when mining is complete
+            clearInterval(balanceInterval);
+            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
+            const hoursMinedThisSession = 6; // 6 hours per mining session
+            localStorage.setItem("totalHoursMined", totalHoursMined + hoursMinedThisSession);
+            updateBalance();
+        }
+
         function updateBalance() {
             const balanceText = document.getElementById("balance");
             const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
-            const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(3); // Show 3 decimal places
+            const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(4); // Show 4 decimal places
             balanceText.innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
-        }
-
-        function addMiningHours(hours) {
-            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
-            localStorage.setItem("totalHoursMined", totalHoursMined + hours);
-            updateBalance();
         }
 
         // Initialize
