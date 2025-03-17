@@ -51,7 +51,7 @@
 <body>
     <div class="container">
         <h1>Sigma Coin Mining</h1>
-        <p id="timer">Click the button to start mining.</p>
+        <p id="timer">Click the logo to start mining.</p>
         <button id="mineButton" class="mine-button" onclick="toggleMining()"></button>
         <div class="balance" id="balance">Sigma Coin Balance: 0.0000</div>
         <div class="usd-price" id="usdPrice">Sigma to USD: $0.00</div>
@@ -79,14 +79,14 @@
             localStorage.setItem("lastMineTime", now);
             miningStartTime = now;
             isMining = true;
-            document.getElementById("mineButton").textContent = "Stop Mining";
+            document.getElementById("timer").textContent = "Mining in progress...";
             updateTimer();
             startBalanceUpdate();
         }
 
         function stopMining() {
             isMining = false;
-            document.getElementById("mineButton").textContent = "Start Mining";
+            document.getElementById("timer").textContent = "Click the logo to start mining.";
             clearInterval(balanceInterval);
             const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
             const hoursMinedThisSession = (Date.now() - miningStartTime) / (1000 * 60 * 60); // Convert milliseconds to hours
@@ -116,14 +116,14 @@
                             timerText.innerHTML = `Next mining available in ${hours}h ${minutes}m ${seconds}s`;
                         } else {
                             mineButton.disabled = false;
-                            timerText.innerHTML = "Click the button to start mining.";
+                            timerText.innerHTML = "Click the logo to start mining.";
                             clearInterval(interval);
                             stopMining();
                         }
                     }, 1000);
                 } else {
                     mineButton.disabled = false;
-                    timerText.innerHTML = "Click the button to start mining.";
+                    timerText.innerHTML = "Click the logo to start mining.";
                 }
             }
 
