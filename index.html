@@ -41,6 +41,11 @@
             margin-top: 20px;
             font-size: 1.2em;
         }
+        .usd-price {
+            margin-top: 10px;
+            font-size: 1em;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -49,11 +54,13 @@
         <p id="timer">Click the button to start mining.</p>
         <button id="mineButton" class="mine-button" onclick="startMining()"></button>
         <div class="balance" id="balance">Sigma Coin Balance: 0.0000</div>
+        <div class="usd-price" id="usdPrice">Sigma to USD: $0.00</div>
     </div>
     
     <script>
         const miningInterval = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
         const hoursPerCoin = 6; // 6 hours of mining = 1 Sigma Coin
+        const sigmaToUsdRate = 3.22; // 1 Sigma Coin = $3.22
 
         let miningStartTime = null;
         let balanceInterval = null;
@@ -98,8 +105,9 @@
                 }
             }
 
-            // Update Sigma Coin balance
+            // Update Sigma Coin balance and USD price
             updateBalance();
+            updateUsdPrice();
         }
 
         function startBalanceUpdate() {
@@ -111,6 +119,7 @@
                 const totalHoursMined = (parseFloat(localStorage.getItem("totalHoursMined")) || 0) + hoursMined;
                 const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(4); // Show 4 decimal places
                 document.getElementById("balance").innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
+                updateUsdPrice(); // Update USD price in real-time
             }, 1000);
         }
 
@@ -121,6 +130,7 @@
             const hoursMinedThisSession = 6; // 6 hours per mining session
             localStorage.setItem("totalHoursMined", totalHoursMined + hoursMinedThisSession);
             updateBalance();
+            updateUsdPrice();
         }
 
         function updateBalance() {
@@ -128,6 +138,14 @@
             const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
             const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(4); // Show 4 decimal places
             balanceText.innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
+        }
+
+        function updateUsdPrice() {
+            const usdPriceText = document.getElementById("usdPrice");
+            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
+            const sigmaCoins = totalHoursMined / hoursPerCoin;
+            const usdValue = (sigmaCoins * sigmaToUsdRate).toFixed(2); // Show 2 decimal places for USD
+            usdPriceText.innerHTML = `Sigma to USD: $${usdValue}`;
         }
 
         // Initialize
