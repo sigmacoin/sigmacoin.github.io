@@ -48,7 +48,7 @@
         <h1>Sigma Coin Mining</h1>
         <p id="timer">Click the button to start mining.</p>
         <button id="mineButton" class="mine-button" onclick="startMining()"></button>
-        <div class="balance" id="balance">Sigma Coin Balance: 0</div>
+        <div class="balance" id="balance">Sigma Coin Balance: 0.000</div>
     </div>
     
     <script>
@@ -58,6 +58,7 @@
         function startMining() {
             const now = Date.now();
             localStorage.setItem("lastMineTime", now);
+            addMiningHours(6); // Add 6 hours of mining
             updateTimer();
         }
 
@@ -65,7 +66,6 @@
             const lastMineTime = localStorage.getItem("lastMineTime");
             const mineButton = document.getElementById("mineButton");
             const timerText = document.getElementById("timer");
-            const balanceText = document.getElementById("balance");
             
             if (lastMineTime) {
                 const elapsed = Date.now() - lastMineTime;
@@ -100,7 +100,7 @@
         function updateBalance() {
             const balanceText = document.getElementById("balance");
             const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
-            const sigmaCoins = Math.floor(totalHoursMined / hoursPerCoin);
+            const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(3); // Show 3 decimal places
             balanceText.innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
         }
 
