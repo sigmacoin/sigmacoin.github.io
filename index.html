@@ -1,1 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma Coin Mining</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sigma Coin Mining</h1>
+        <p>Next mining available in:</p>
+        <h2 id="timer">06:00:00</h2>
+        <button onclick="startMining()">Start Mining</button>
+    </div>
+
+    <script>
+        function startMining() {
+            const now = new Date().getTime();
+            const nextMine = now + 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+            localStorage.setItem("nextMineTime", nextMine);
+            updateTimer();
+        }
+
+        function updateTimer() {
+            const nextMine = localStorage.getItem("nextMineTime");
+            if (!nextMine) return;
+
+            const interval = setInterval(() => {
+                const now = new Date().getTime();
+                const timeLeft = nextMine - now;
+
+                if (timeLeft <= 0) {
+                    document.getElementById("timer").innerText = "00:00:00";
+                    clearInterval(interval);
+                } else {
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60)).toString().padStart(2, "0");
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, "0");
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000).toString().padStart(2, "0");
+
+                    document.getElementById("timer").innerText = `${hours}:${minutes}:${seconds}`;
+                }
+            }, 1000);
+        }
+
+        updateTimer();
+    </script>
+</body>
+</html>
 
