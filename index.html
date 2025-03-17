@@ -52,7 +52,7 @@
     <div class="container">
         <h1>Sigma Coin Mining</h1>
         <p id="timer">Click the button to start mining.</p>
-        <button id="mineButton" class="mine-button" onclick="startMining()"></button>
+        <button id="mineButton" class="mine-button" onclick="toggleMining()"></button>
         <div class="balance" id="balance">Sigma Coin Balance: 0.0000</div>
         <div class="usd-price" id="usdPrice">Sigma to USD: $0.00</div>
     </div>
@@ -64,13 +64,35 @@
 
         let miningStartTime = null;
         let balanceInterval = null;
+        let isMining = false;
+
+        function toggleMining() {
+            if (isMining) {
+                stopMining();
+            } else {
+                startMining();
+            }
+        }
 
         function startMining() {
             const now = Date.now();
             localStorage.setItem("lastMineTime", now);
             miningStartTime = now;
+            isMining = true;
+            document.getElementById("mineButton").textContent = "Stop Mining";
             updateTimer();
             startBalanceUpdate();
+        }
+
+        function stopMining() {
+            isMining = false;
+            document.getElementById("mineButton").textContent = "Start Mining";
+            clearInterval(balanceInterval);
+            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
+            const hoursMinedThisSession = (Date.now() - miningStartTime) / (1000 * 60 * 60); // Convert milliseconds to hours
+            localStorage.setItem("totalHoursMined", totalHoursMined + hoursMinedThisSession);
+            updateBalance();
+            updateUsdPrice();
         }
 
         function updateTimer() {
@@ -96,7 +118,7 @@
                             mineButton.disabled = false;
                             timerText.innerHTML = "Click the button to start mining.";
                             clearInterval(interval);
-                            stopBalanceUpdate();
+                            stopMining();
                         }
                     }, 1000);
                 } else {
@@ -121,16 +143,6 @@
                 document.getElementById("balance").innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
                 updateUsdPrice(); // Update USD price in real-time
             }, 1000);
-        }
-
-        function stopBalanceUpdate() {
-            // Stop updating the balance when mining is complete
-            clearInterval(balanceInterval);
-            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
-            const hoursMinedThisSession = 6; // 6 hours per mining session
-            localStorage.setItem("totalHoursMined", totalHoursMined + hoursMinedThisSession);
-            updateBalance();
-            updateUsdPrice();
         }
 
         function updateBalance() {
