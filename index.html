@@ -46,6 +46,11 @@
             font-size: 1em;
             color: #ccc;
         }
+        .clock {
+            margin-top: 10px;
+            font-size: 1.2em;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -55,6 +60,7 @@
         <button id="mineButton" class="mine-button" onclick="toggleMining()"></button>
         <div class="balance" id="balance">Sigma Coin Balance: 0.0000</div>
         <div class="usd-price" id="usdPrice">Sigma to USD: $0.00</div>
+        <div class="clock" id="clock">Total Mined: 00:00:00</div>
     </div>
     
     <script>
@@ -64,7 +70,9 @@
 
         let miningStartTime = null;
         let balanceInterval = null;
+        let clockInterval = null;
         let isMining = false;
+        let totalMinedTime = parseFloat(localStorage.getItem("totalMinedTime")) || 0; // Total mined time in milliseconds
 
         function toggleMining() {
             if (isMining) {
@@ -82,17 +90,22 @@
             document.getElementById("timer").textContent = "Mining in progress...";
             updateTimer();
             startBalanceUpdate();
+            startClock();
         }
 
         function stopMining() {
             isMining = false;
             document.getElementById("timer").textContent = "Click the logo to start mining.";
             clearInterval(balanceInterval);
-            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
+            clearInterval(clockInterval);
             const hoursMinedThisSession = (Date.now() - miningStartTime) / (1000 * 60 * 60); // Convert milliseconds to hours
-            localStorage.setItem("totalHoursMined", totalHoursMined + hoursMinedThisSession);
+            const totalHoursMined = (parseFloat(localStorage.getItem("totalHoursMined")) || 0) + hoursMinedThisSession;
+            localStorage.setItem("totalHoursMined", totalHoursMined);
+            totalMinedTime += Date.now() - miningStartTime; // Add mined time to total
+            localStorage.setItem("totalMinedTime", totalMinedTime);
             updateBalance();
             updateUsdPrice();
+            updateClock();
         }
 
         function updateTimer() {
@@ -145,6 +158,22 @@
             }, 1000);
         }
 
+        function startClock() {
+            // Update the clock every second
+            clockInterval = setInterval(() => {
+                updateClock();
+            }, 1000);
+        }
+
+        function updateClock() {
+            const clockText = document.getElementById("clock");
+            const totalTime = totalMinedTime + (isMining ? Date.now() - miningStartTime : 0); // Add current session if mining
+            const hours = Math.floor(totalTime / (1000 * 60 * 60));
+            const minutes = Math.floor((totalTime % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((totalTime % (1000 * 60)) / 1000);
+            clockText.innerHTML = `Total Mined: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
         function updateBalance() {
             const balanceText = document.getElementById("balance");
             const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
@@ -162,6 +191,7 @@
 
         // Initialize
         updateTimer();
+        updateClock();
     </script>
 </body>
 </html>
