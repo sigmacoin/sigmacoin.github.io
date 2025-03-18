@@ -8,33 +8,54 @@ body {
     text-align: center;
 }
 
+/* Restrict the page to mobile view */
+@media only screen and (min-width: 600px) {
+    body::before {
+        content: "This page is optimized for mobile view only. Please open it on a mobile device.";
+        display: block;
+        padding: 20px;
+        background-color: #ffcccc;
+        color: #cc0000;
+        font-size: 1.2rem;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+    body * {
+        display: none; /* Hide all content on larger screens */
+    }
+}
+
+/* Mobile-specific styles */
 header {
     background-color: #007bff;
     color: white;
-    padding: 20px 0;
+    padding: 20px 10px;
 }
 
 header h1 {
     margin: 0;
-    font-size: 2.5rem;
+    font-size: 2rem;
 }
 
 header p {
     margin: 10px 0 0;
-    font-size: 1.2rem;
+    font-size: 1rem;
 }
 
 main {
-    padding: 20px;
+    padding: 10px;
 }
 
 section {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 h2 {
     color: #007bff;
-    font-size: 2rem;
+    font-size: 1.5rem;
 }
 
 ul {
@@ -46,7 +67,7 @@ ul li {
     background-color: #e9ecef;
     margin: 10px auto;
     padding: 10px;
-    width: 50%;
+    width: 90%;
     border-radius: 5px;
 }
 
