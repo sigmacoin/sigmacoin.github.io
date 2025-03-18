@@ -43,6 +43,12 @@ document.getElementById("mineImage").addEventListener("click", function () {
     startMining();
 });
 
+document.getElementById("watchAdsButton").addEventListener("click", function () {
+    sigmaEarned = (parseFloat(sigmaEarned) + 0.25).toFixed(6); // Add 0.25 Sigma
+    alert("You earned 0.25 Sigma by watching an ad!");
+    updateMiningDetails();
+});
+
 function startMining() {
     // Save mining data to local storage
     localStorage.setItem("miningData", JSON.stringify({ startTime, sigmaEarned }));
@@ -63,9 +69,13 @@ function startMining() {
             sigmaEarned = (timeElapsed / 3600000).toFixed(6); // Convert milliseconds to hours
         }
 
-        // Update the UI
-        document.getElementById("timeElapsed").textContent = `${Math.floor(timeElapsed / 1000)}s`;
-        document.getElementById("sigmaEarned").textContent = sigmaEarned;
-        document.getElementById("sigmaPrice").textContent = sigmaPrice.toFixed(2);
+        updateMiningDetails();
     }, 1000); // Update every second
+}
+
+function updateMiningDetails() {
+    // Update the UI
+    document.getElementById("timeElapsed").textContent = `${Math.floor((Date.now() - startTime) / 1000)}s`;
+    document.getElementById("sigmaEarned").textContent = sigmaEarned;
+    document.getElementById("sigmaPrice").textContent = sigmaPrice.toFixed(2);
 }
