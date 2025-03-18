@@ -56,6 +56,12 @@ header img {
     margin-right: auto;
 }
 
+#sigmaBalance {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #28a745; /* Green color for balance */
+}
+
 main {
     padding: 10px;
 }
