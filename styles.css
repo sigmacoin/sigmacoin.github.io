@@ -108,12 +108,3 @@ ul li {
     width: 90%;
     border-radius: 5px;
 }
-
-footer {
-    background-color: #333;
-    color: white;
-    padding: 10px 0;
-    position: fixed;
-    width: 100%;
-    bottom: 0;
-}
