@@ -1,5 +1,4 @@
-document.getElementById("joinButton").addEventListener("click", function() {
-    alert("Thank you for joining Sigma Coin! We'll redirect you to the sign-up page soon.");
-    // You can add a redirect link here:
-    // window.location.href = "https://example.com/signup";
+document.getElementById("mineButton").addEventListener("click", function() {
+    alert("Mining Sigma Coin... This may take a few moments.");
+    // You can add mining logic here, such as calling an API or simulating mining.
 });
