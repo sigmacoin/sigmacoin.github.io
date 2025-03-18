@@ -41,8 +41,25 @@ header h1 {
 }
 
 header p {
-    margin: 10px 0 0;
+    margin: 10px 0 20px; /* Added margin below the paragraph */
     font-size: 1rem;
+}
+
+header button {
+    background-color: #28a745; /* Green color for the Mine button */
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 300px;
+    margin-top: 10px; /* Space between the paragraph and button */
+}
+
+header button:hover {
+    background-color: #218838; /* Darker green on hover */
 }
 
 main {
@@ -69,22 +86,6 @@ ul li {
     padding: 10px;
     width: 90%;
     border-radius: 5px;
-}
-
-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 15px 30px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    border-radius: 5px;
-    width: 90%;
-    max-width: 300px;
-}
-
-button:hover {
-    background-color: #0056b3;
 }
 
 footer {
