@@ -41,18 +41,31 @@ header h1 {
 }
 
 header p {
-    margin: 10px 0 20px; /* Added margin below the paragraph */
+    margin: 10px 0 15px; /* Added margin below the paragraph */
     font-size: 1rem;
 }
 
 header img {
-    width: 60px; /* Very small size */
-    height: 60px; /* Very small size */
+    width: 40px; /* Very small size */
+    height: 40px; /* Very small size */
     border-radius: 50%; /* Makes the image circular */
     border: 2px solid white; /* Optional: Adds a thin border */
     margin-top: 10px; /* Space between the paragraph and image */
     cursor: pointer; /* Indicates the image is clickable */
+    display: block; /* Ensures the image is centered */
+    margin-left: auto;
+    margin-right: auto;
 }
+
+#miningDetails {
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+
+#miningDetails p {
+    margin: 5px 0;
+}
+
 main {
     padding: 10px;
 }
