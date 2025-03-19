@@ -1,197 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sigma Coin Mining</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: yellow;
-            color: black;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #1e1e1e;
-            color: white;
-        }
-        .mine-button {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-image: url('Bright Colorful Playful Funny Donuts Food Circle Logo (1).png'); /* Replace with your image URL */
-            background-size: cover;
-            background-position: center;
-            border: none;
-            cursor: pointer;
-            display: inline-block;
-            margin-top: 20px;
-        }
-        .mine-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .balance {
-            margin-top: 20px;
-            font-size: 1.2em;
-        }
-        .usd-price {
-            margin-top: 10px;
-            font-size: 1em;
-            color: #ccc;
-        }
-        .clock {
-            margin-top: 10px;
-            font-size: 1.2em;
-            color: #ccc;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Sigma Coin Mining</h1>
-        <p id="timer">Click the logo to start mining.</p>
-        <button id="mineButton" class="mine-button" onclick="toggleMining()"></button>
-        <div class="balance" id="balance">Sigma Coin Balance: 0.0000</div>
-        <div class="usd-price" id="usdPrice">Sigma to USD: $0.00</div>
-        <div class="clock" id="clock">Total Mined: 00:00:00</div>
-    </div>
-    
-    <script>
-        const miningInterval = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-        const hoursPerCoin = 3; // 3 hours of mining = 1 Sigma Coin
-        const sigmaToUsdRate = 3.22; // 1 Sigma Coin = $3.22
-
-        let miningStartTime = null;
-        let balanceInterval = null;
-        let clockInterval = null;
-        let isMining = false;
-        let totalMinedTime = parseFloat(localStorage.getItem("totalMinedTime")) || 0; // Total mined time in milliseconds
-
-        function toggleMining() {
-            if (isMining) {
-                stopMining();
-            } else {
-                startMining();
-            }
-        }
-
-        function startMining() {
-            const now = Date.now();
-            localStorage.setItem("lastMineTime", now);
-            miningStartTime = now;
-            isMining = true;
-            document.getElementById("timer").textContent = "Mining in progress...";
-            updateTimer();
-            startBalanceUpdate();
-            startClock();
-        }
-
-        function stopMining() {
-            isMining = false;
-            document.getElementById("timer").textContent = "Click the logo to start mining.";
-            clearInterval(balanceInterval);
-            clearInterval(clockInterval);
-            const hoursMinedThisSession = (Date.now() - miningStartTime) / (1000 * 60 * 60); // Convert milliseconds to hours
-            const totalHoursMined = (parseFloat(localStorage.getItem("totalHoursMined")) || 0) + hoursMinedThisSession;
-            localStorage.setItem("totalHoursMined", totalHoursMined);
-            totalMinedTime += Date.now() - miningStartTime; // Add mined time to total
-            localStorage.setItem("totalMinedTime", totalMinedTime);
-            updateBalance();
-            updateUsdPrice();
-            updateClock();
-        }
-
-        function updateTimer() {
-            const lastMineTime = localStorage.getItem("lastMineTime");
-            const mineButton = document.getElementById("mineButton");
-            const timerText = document.getElementById("timer");
-            
-            if (lastMineTime) {
-                const elapsed = Date.now() - lastMineTime;
-                const remaining = miningInterval - elapsed;
-                
-                if (remaining > 0) {
-                    mineButton.disabled = true;
-                    const interval = setInterval(() => {
-                        const elapsed = Date.now() - lastMineTime;
-                        const remaining = miningInterval - elapsed;
-                        if (remaining > 0) {
-                            const hours = Math.floor(remaining / (1000 * 60 * 60));
-                            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
-                            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
-                            timerText.innerHTML = `Next mining available in ${hours}h ${minutes}m ${seconds}s`;
-                        } else {
-                            mineButton.disabled = false;
-                            timerText.innerHTML = "Click the logo to start mining.";
-                            clearInterval(interval);
-                            stopMining();
-                        }
-                    }, 1000);
-                } else {
-                    mineButton.disabled = false;
-                    timerText.innerHTML = "Click the logo to start mining.";
-                }
-            }
-
-            // Update Sigma Coin balance and USD price
-            updateBalance();
-            updateUsdPrice();
-        }
-
-        function startBalanceUpdate() {
-            // Update the balance every second
-            balanceInterval = setInterval(() => {
-                const now = Date.now();
-                const elapsed = now - miningStartTime;
-                const hoursMined = elapsed / (1000 * 60 * 60); // Convert milliseconds to hours
-                const totalHoursMined = (parseFloat(localStorage.getItem("totalHoursMined")) || 0) + hoursMined;
-                const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(4); // Show 4 decimal places
-                document.getElementById("balance").innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
-                updateUsdPrice(); // Update USD price in real-time
-            }, 1000);
-        }
-
-        function startClock() {
-            // Update the clock every second
-            clockInterval = setInterval(() => {
-                updateClock();
-            }, 1000);
-        }
-
-        function updateClock() {
-            const clockText = document.getElementById("clock");
-            const totalTime = totalMinedTime + (isMining ? Date.now() - miningStartTime : 0); // Add current session if mining
-            const hours = Math.floor(totalTime / (1000 * 60 * 60));
-            const minutes = Math.floor((totalTime % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((totalTime % (1000 * 60)) / 1000);
-            clockText.innerHTML = `Total Mined: ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        function updateBalance() {
-            const balanceText = document.getElementById("balance");
-            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
-            const sigmaCoins = (totalHoursMined / hoursPerCoin).toFixed(4); // Show 4 decimal places
-            balanceText.innerHTML = `Sigma Coin Balance: ${sigmaCoins}`;
-        }
-
-        function updateUsdPrice() {
-            const usdPriceText = document.getElementById("usdPrice");
-            const totalHoursMined = parseFloat(localStorage.getItem("totalHoursMined")) || 0;
-            const sigmaCoins = totalHoursMined / hoursPerCoin;
-            const usdValue = (sigmaCoins * sigmaToUsdRate).toFixed(2); // Show 2 decimal places for USD
-            usdPriceText.innerHTML = `Sigma to USD: $${usdValue}`;
-        }
-
-        // Initialize
-        updateTimer();
-        updateClock();
-    </script>
-</body>
-</html>
+ <html lang="en">
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+     <title>Sigma Coin</title>
+     <link rel="stylesheet" href="styles.css">
+     <!-- Google AdSense Script -->
+     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1879329283352330"
+             crossorigin="anonymous"></script>
+ </head>
+ <body>
+     <header>
+         <h1>Welcome to Sigma Coin</h1>
+         <p>Your decentralized cryptocurrency for the future.</p>
+         <img src="1.png" alt="Sigma Coin Logo" id="logoImage">
+         <p>Balance: <span id="sigmaBalance">0</span> Sigma</p>
+     </header>
+     <main>
+         <section id="about">
+             <h2>About Sigma Coin</h2>
+             <p>Sigma Coin is a revolutionary cryptocurrency designed for fast, secure, and decentralized transactions. Join the future of finance today!</p>
+         </section>
+      <section id="watchAds">
+     <button id="watchAdsButton">Watch Ads to Earn 0.25 Sigma</button>
+     <!-- AdSense Ad Unit -->
+     <ins class="adsbygoogle"
+          style="display:block"
+          data-ad-client="ca-pub-1879329283352330"
+          data-ad-slot="1234567890" <!-- Replace with your ad unit ID -->
+          data-ad-format="auto"
+          data-full-width-responsive="true"></ins>
+     <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+     </script>
+ </section>
+         <section id="watchAds">
+             <button id="watchAdsButton">Watch Ads to Earn 0.25 Sigma</button>
+             <!-- Placeholder for Ad -->
+             <div id="adContainer" style="display: none;"></div>
+         </section>
+         <section id="features">
+             <h2>Features</h2>
+             <ul>
+                 <li>Decentralized and secure</li>
+                 <li>Fast transactions with low fees</li>
+                 <li>Eco-friendly mining</li>
+                 <li>Global accessibility</li>
+             </ul>
+         </section>
+     </main>
+     <script src="script.js"></script>
+ </body>
+ </html>
