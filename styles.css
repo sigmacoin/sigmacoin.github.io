@@ -87,3 +87,17 @@ body {
     margin-top: 20px;
     font-size: 18px;
 }
+#google-signin-button {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 5px;
+    background-color: #db4437; /* Google Red */
+    color: white;
+    cursor: pointer;
+}
+
+#google-signin-button:hover {
+    background-color: #c33d2e;
+}
