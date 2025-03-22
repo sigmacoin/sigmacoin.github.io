@@ -40,6 +40,12 @@ signupButton.addEventListener('click', () => {
     const email = emailInput.value;
     const password = passwordInput.value;
 
+    console.log("Sign Up Button Clicked"); // Debugging
+    console.log("First Name:", firstName); // Debugging
+    console.log("Last Name:", lastName); // Debugging
+    console.log("Email:", email); // Debugging
+    console.log("Password:", password); // Debugging
+
     if (!firstName || !lastName || !email || !password) {
         authMessage.textContent = 'Please fill in all fields.';
         return;
@@ -48,13 +54,17 @@ signupButton.addEventListener('click', () => {
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
+            console.log("User Created:", user); // Debugging
+
             // Send email verification
             user.sendEmailVerification()
                 .then(() => {
                     authMessage.textContent = 'Confirmation email sent. Please check your inbox.';
+                    console.log("Verification Email Sent"); // Debugging
                 })
                 .catch((error) => {
                     authMessage.textContent = error.message;
+                    console.error("Error Sending Verification Email:", error); // Debugging
                 });
 
             // Save user details to Firestore
@@ -65,10 +75,17 @@ signupButton.addEventListener('click', () => {
                 balance: 0,
                 miningProgress: 0,
                 emailVerified: false
+            })
+            .then(() => {
+                console.log("User Data Saved to Firestore"); // Debugging
+            })
+            .catch((error) => {
+                console.error("Error Saving User Data:", error); // Debugging
             });
         })
         .catch((error) => {
             authMessage.textContent = error.message;
+            console.error("Error Creating User:", error); // Debugging
         });
 });
 
@@ -196,4 +213,8 @@ function startMining() {
 auth.onAuthStateChanged((user) => {
     if (user) {
         showApp();
-   
+    } else {
+        document.querySelector('.auth-container').style.display = 'block';
+        container.style.display = 'none';
+    }
+});
