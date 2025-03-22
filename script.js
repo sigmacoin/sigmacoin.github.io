@@ -15,162 +15,128 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // DOM Elements
-const firstNameInput = document.getElementById('first-name');
-const lastNameInput = document.getElementById('last-name');
-const signupEmailInput = document.getElementById('signup-email');
-const signupPasswordInput = document.getElementById('signup-password');
-const loginEmailInput = document.getElementById('login-email');
-const loginPasswordInput = document.getElementById('login-password');
-const signupButton = document.getElementById('signup-button');
-const loginButton = document.getElementById('login-button');
-const authMessage = document.getElementById('auth-message');
 const googleSignInButton = document.getElementById('google-signin-button');
+const facebookSignInButton = document.getElementById('facebook-signin-button');
+const phoneNumberInput = document.getElementById('phone-number');
+const sendOtpButton = document.getElementById('send-otp-button');
+const otpInput = document.getElementById('otp');
+const verifyOtpButton = document.getElementById('verify-otp-button');
+const authMessage = document.getElementById('auth-message');
 const container = document.querySelector('.container');
 const adButtons = document.querySelectorAll('.ad-button');
 const mineButton = document.querySelector('.mine-button');
 const balanceDisplay = document.getElementById('balance');
 const timerDisplay = document.getElementById('timer');
-const signupForm = document.getElementById('signup-form');
-const loginForm = document.getElementById('login-form');
-const toggleSignup = document.getElementById('toggle-signup');
-const toggleLogin = document.getElementById('toggle-login');
 
 let balance = 0;
 let mining = false;
 let timer = 86400; // 24 hours in seconds
+let confirmationResult; // For phone authentication
 
-// Toggle between Sign Up and Log In forms
-toggleSignup.addEventListener('click', () => {
-    signupForm.style.display = 'block';
-    loginForm.style.display = 'none';
-});
-
-toggleLogin.addEventListener('click', () => {
-    signupForm.style.display = 'none';
-    loginForm.style.display = 'block';
-});
-
-// Sign Up with Email/Password
-signupButton.addEventListener('click', () => {
-    const firstName = firstNameInput.value;
-    const lastName = lastNameInput.value;
-    const email = signupEmailInput.value;
-    const password = signupPasswordInput.value;
-
-    console.log("Sign Up Button Clicked"); // Debugging
-    console.log("First Name:", firstName); // Debugging
-    console.log("Last Name:", lastName); // Debugging
-    console.log("Email:", email); // Debugging
-    console.log("Password:", password); // Debugging
-
-    if (!firstName || !lastName || !email || !password) {
-        authMessage.textContent = 'Please fill in all fields.';
-        console.log("Validation Failed: Missing Fields"); // Debugging
-        return;
-    }
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            console.log("User Created:", user); // Debugging
-
-            // Send email verification
-            user.sendEmailVerification()
-                .then(() => {
-                    authMessage.textContent = 'Confirmation email sent. Please check your inbox.';
-                    console.log("Verification Email Sent"); // Debugging
-                })
-                .catch((error) => {
-                    authMessage.textContent = error.message;
-                    console.error("Error Sending Verification Email:", error); // Debugging
-                });
-
-            // Save user details to Firestore
-            db.collection('users').doc(user.uid).set({
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                balance: 0,
-                miningProgress: 0,
-                emailVerified: false
-            })
-            .then(() => {
-                console.log("User Data Saved to Firestore"); // Debugging
-            })
-            .catch((error) => {
-                console.error("Error Saving User Data:", error); // Debugging
-            });
-        })
-        .catch((error) => {
-            authMessage.textContent = error.message;
-            console.error("Error Creating User:", error); // Debugging
-        });
-});
-
-// Log In with Email/Password
-loginButton.addEventListener('click', () => {
-    const email = loginEmailInput.value;
-    const password = loginPasswordInput.value;
-
-    console.log("Log In Button Clicked"); // Debugging
-    console.log("Email:", email); // Debugging
-    console.log("Password:", password); // Debugging
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            authMessage.textContent = 'Login successful!';
-            showApp();
-        })
-        .catch((error) => {
-            authMessage.textContent = error.message;
-            console.error("Error Logging In:", error); // Debugging
-        });
-});
-
-// Google Sign-In
+// Continue with Google
 googleSignInButton.addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
         .then((result) => {
             const user = result.user;
-            // Check if the user is new
-            if (result.additionalUserInfo.isNewUser) {
-                // Send email verification
-                user.sendEmailVerification()
-                    .then(() => {
-                        authMessage.textContent = 'Confirmation email sent. Please check your inbox.';
-                    })
-                    .catch((error) => {
-                        authMessage.textContent = error.message;
-                    });
-            }
-
-            // Save user details to Firestore
-            db.collection('users').doc(user.uid).set({
-                firstName: user.displayName.split(' ')[0],
-                lastName: user.displayName.split(' ')[1] || '',
-                email: user.email,
-                balance: 0,
-                miningProgress: 0,
-                emailVerified: user.emailVerified
-            }, { merge: true }); // Use merge to avoid overwriting existing data
+            console.log("Google Sign-In Successful:", user); // Debugging
+            saveUserData(user);
             showApp();
         })
         .catch((error) => {
             authMessage.textContent = error.message;
+            console.error("Google Sign-In Error:", error); // Debugging
         });
 });
 
+// Continue with Facebook
+facebookSignInButton.addEventListener('click', () => {
+    const provider = new firebase.auth.FacebookAuthProvider();
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            console.log("Facebook Sign-In Successful:", user); // Debugging
+            saveUserData(user);
+            showApp();
+        })
+        .catch((error) => {
+            authMessage.textContent = error.message;
+            console.error("Facebook Sign-In Error:", error); // Debugging
+        });
+});
+
+// Send OTP for Phone Number
+sendOtpButton.addEventListener('click', () => {
+    const phoneNumber = phoneNumberInput.value;
+
+    if (!phoneNumber) {
+        authMessage.textContent = 'Please enter a valid phone number.';
+        return;
+    }
+
+    const appVerifier = new firebase.auth.RecaptchaVerifier('send-otp-button', {
+        size: 'invisible',
+    });
+
+    auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then((confirmation) => {
+            confirmationResult = confirmation;
+            authMessage.textContent = 'OTP sent to your phone number.';
+            otpInput.style.display = 'block';
+            verifyOtpButton.style.display = 'block';
+        })
+        .catch((error) => {
+            authMessage.textContent = error.message;
+            console.error("Error Sending OTP:", error); // Debugging
+        });
+});
+
+// Verify OTP
+verifyOtpButton.addEventListener('click', () => {
+    const otp = otpInput.value;
+
+    if (!otp) {
+        authMessage.textContent = 'Please enter the OTP.';
+        return;
+    }
+
+    confirmationResult.confirm(otp)
+        .then((result) => {
+            const user = result.user;
+            console.log("Phone Authentication Successful:", user); // Debugging
+            saveUserData(user);
+            showApp();
+        })
+        .catch((error) => {
+            authMessage.textContent = error.message;
+            console.error("Error Verifying OTP:", error); // Debugging
+        });
+});
+
+// Save User Data to Firestore
+function saveUserData(user) {
+    db.collection('users').doc(user.uid).set({
+        firstName: user.displayName?.split(' ')[0] || '',
+        lastName: user.displayName?.split(' ')[1] || '',
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        balance: 0,
+        miningProgress: 0,
+        emailVerified: user.emailVerified || false
+    }, { merge: true })
+    .then(() => {
+        console.log("User Data Saved to Firestore"); // Debugging
+    })
+    .catch((error) => {
+        console.error("Error Saving User Data:", error); // Debugging
+    });
+}
+
 // Show App After Authentication
 function showApp() {
-    const user = auth.currentUser;
-    if (user && user.emailVerified) {
-        document.querySelector('.auth-container').style.display = 'none';
-        container.style.display = 'block';
-        loadUserData();
-    } else if (user) {
-        authMessage.textContent = 'Please verify your email to access the app.';
-    }
+    document.querySelector('.auth-container').style.display = 'none';
+    container.style.display = 'block';
+    loadUserData();
 }
 
 // Load User Data from Firestore
