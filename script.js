@@ -1,36 +1,40 @@
-// Load Sigma balance from local storage
-let sigmaEarned = parseFloat(localStorage.getItem("sigmaEarned")) || 0;
+let balance = 0;
+let mining = false;
+let timer = 86400; // 24 hours in seconds
 
-// Display the initial balance
-document.getElementById("sigmaBalance").textContent = sigmaEarned.toFixed(2);
-
-// Watch Ads button functionality
-document.getElementById("watchAdsButton").addEventListener("click", function () {
-    // Show the ad
-    showAd();
-
-    // Add 0.25 Sigma after the ad is displayed
-    setTimeout(() => {
-        sigmaEarned += 0.25; // Add 0.25 Sigma
-        document.getElementById("sigmaBalance").textContent = sigmaEarned.toFixed(2); // Update balance display
-        localStorage.setItem("sigmaEarned", sigmaEarned); // Save to local storage
-        alert("You earned 0.25 Sigma by watching an ad!");
-    }, 1000); // Simulate ad display delay
+document.querySelectorAll('.ad-button').forEach(button => {
+    button.addEventListener('click', () => {
+        balance += 0.5;
+        updateBalance();
+    });
 });
 
-function showAd() {
-    // Inject the ad code into the ad container
-    const adContainer = document.getElementById("adContainer");
-    adContainer.innerHTML = `
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-1879329283352330"
-             data-ad-slot="6128464077"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>
-             (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    `;
-    adContainer.style.display = "block"; // Show the ad container
+document.querySelector('.mine-button').addEventListener('click', () => {
+    if (!mining) {
+        mining = true;
+        startMining();
+    }
+});
+
+function updateBalance() {
+    document.getElementById('balance').textContent = balance.toFixed(1);
+}
+
+function startMining() {
+    const timerElement = document.getElementById('timer');
+    const interval = setInterval(() => {
+        timer--;
+        const hours = Math.floor(timer / 3600);
+        const minutes = Math.floor((timer % 3600) / 60);
+        const seconds = timer % 60;
+        timerElement.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timer <= 0) {
+            clearInterval(interval);
+            mining = false;
+            balance += 30;
+            updateBalance();
+            timer = 86400; // Reset timer
+        }
+    }, 1000);
 }
