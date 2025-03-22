@@ -48,6 +48,24 @@ signupButton.addEventListener('click', () => {
             authMessage.textContent = error.message;
         });
 });
+// Google Sign-In
+const googleSignInButton = document.getElementById('google-signin-button');
+googleSignInButton.addEventListener('click', () => {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            db.collection('users').doc(user.uid).set({
+                balance: 0,
+                miningProgress: 0
+            }, { merge: true }); // Use merge to avoid overwriting existing data
+            authMessage.textContent = 'Google Sign-In successful!';
+            showApp();
+        })
+        .catch((error) => {
+            authMessage.textContent = error.message;
+        });
+});
 
 // Log In
 loginButton.addEventListener('click', () => {
