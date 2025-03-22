@@ -1,54 +1,29 @@
 <!DOCTYPE html>
- <html lang="en">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-     <title>Sigma Coin</title>
-     <link rel="stylesheet" href="styles.css">
-     <!-- Google AdSense Script -->
-     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1879329283352330"
-             crossorigin="anonymous"></script>
- </head>
- <body>
-     <header>
-         <h1>Welcome to Sigma Coin</h1>
-         <p>Your decentralized cryptocurrency for the future.</p>
-         <img src="1.png" alt="Sigma Coin Logo" id="logoImage">
-         <p>Balance: <span id="sigmaBalance">0</span> Sigma</p>
-     </header>
-     <main>
-         <section id="about">
-             <h2>About Sigma Coin</h2>
-             <p>Sigma Coin is a revolutionary cryptocurrency designed for fast, secure, and decentralized transactions. Join the future of finance today!</p>
-         </section>
-      <section id="watchAds">
-     <button id="watchAdsButton">Watch Ads to Earn 0.25 Sigma</button>
-     <!-- AdSense Ad Unit -->
-     <ins class="adsbygoogle"
-          style="display:block"
-          data-ad-client="ca-pub-1879329283352330"
-          data-ad-slot="1234567890" <!-- Replace with your ad unit ID -->
-          data-ad-format="auto"
-          data-full-width-responsive="true"></ins>
-     <script>
-         (adsbygoogle = window.adsbygoogle || []).push({});
-     </script>
- </section>
-         <section id="watchAds">
-             <button id="watchAdsButton">Watch Ads to Earn 0.25 Sigma</button>
-             <!-- Placeholder for Ad -->
-             <div id="adContainer" style="display: none;"></div>
-         </section>
-         <section id="features">
-             <h2>Features</h2>
-             <ul>
-                 <li>Decentralized and secure</li>
-                 <li>Fast transactions with low fees</li>
-                 <li>Eco-friendly mining</li>
-                 <li>Global accessibility</li>
-             </ul>
-         </section>
-     </main>
-     <script src="script.js"></script>
- </body>
- </html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sigma Coin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sigma Coin</h1>
+        <div class="buttons">
+            <button class="ad-button">Watch Ad 1</button>
+            <button class="ad-button">Watch Ad 2</button>
+            <button class="ad-button">Watch Ad 3</button>
+            <button class="ad-button">Watch Ad 4</button>
+            <button class="ad-button">Watch Ad 5</button>
+        </div>
+        <div class="mining">
+            <button class="mine-button">Mine Sigma Coin</button>
+            <p>Mining Cycle: <span id="timer">24:00:00</span></p>
+        </div>
+        <div class="balance">
+            <p>Your Balance: <span id="balance">0</span> Sigma Coins</p>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
