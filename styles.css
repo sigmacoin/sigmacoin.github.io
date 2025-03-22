@@ -18,14 +18,6 @@ body {
     text-align: center;
 }
 
-.auth-container input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
 .auth-container button {
     width: 100%;
     padding: 10px;
@@ -42,18 +34,19 @@ body {
 }
 
 #google-signin-button {
+    background-color: #db4437; /* Google Red */
+}
+
+#facebook-signin-button {
+    background-color: #1877f2; /* Facebook Blue */
+}
+
+#phone-auth input {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    border: none;
+    border: 1px solid #ccc;
     border-radius: 5px;
-    background-color: #db4437; /* Google Red */
-    color: white;
-    cursor: pointer;
-}
-
-#google-signin-button:hover {
-    background-color: #c33d2e;
 }
 
 #auth-message {
