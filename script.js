@@ -15,6 +15,8 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 // DOM Elements
+const firstNameInput = document.getElementById('first-name');
+const lastNameInput = document.getElementById('last-name');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const signupButton = document.getElementById('signup-button');
@@ -31,19 +33,39 @@ let balance = 0;
 let mining = false;
 let timer = 86400; // 24 hours in seconds
 
-// Sign Up
+// Sign Up with Email/Password
 signupButton.addEventListener('click', () => {
+    const firstName = firstNameInput.value;
+    const lastName = lastNameInput.value;
     const email = emailInput.value;
     const password = passwordInput.value;
+
+    if (!firstName || !lastName || !email || !password) {
+        authMessage.textContent = 'Please fill in all fields.';
+        return;
+    }
+
     auth.createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
             const user = userCredential.user;
+            // Send email verification
+            user.sendEmailVerification()
+                .then(() => {
+                    authMessage.textContent = 'Confirmation email sent. Please check your inbox.';
+                })
+                .catch((error) => {
+                    authMessage.textContent = error.message;
+                });
+
+            // Save user details to Firestore
             db.collection('users').doc(user.uid).set({
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
                 balance: 0,
-                miningProgress: 0
+                miningProgress: 0,
+                emailVerified: false
             });
-            authMessage.textContent = 'Sign up successful!';
-            showApp();
         })
         .catch((error) => {
             authMessage.textContent = error.message;
@@ -70,11 +92,27 @@ googleSignInButton.addEventListener('click', () => {
     auth.signInWithPopup(provider)
         .then((result) => {
             const user = result.user;
+            // Check if the user is new
+            if (result.additionalUserInfo.isNewUser) {
+                // Send email verification
+                user.sendEmailVerification()
+                    .then(() => {
+                        authMessage.textContent = 'Confirmation email sent. Please check your inbox.';
+                    })
+                    .catch((error) => {
+                        authMessage.textContent = error.message;
+                    });
+            }
+
+            // Save user details to Firestore
             db.collection('users').doc(user.uid).set({
+                firstName: user.displayName.split(' ')[0],
+                lastName: user.displayName.split(' ')[1] || '',
+                email: user.email,
                 balance: 0,
-                miningProgress: 0
+                miningProgress: 0,
+                emailVerified: user.emailVerified
             }, { merge: true }); // Use merge to avoid overwriting existing data
-            authMessage.textContent = 'Google Sign-In successful!';
             showApp();
         })
         .catch((error) => {
@@ -84,9 +122,14 @@ googleSignInButton.addEventListener('click', () => {
 
 // Show App After Authentication
 function showApp() {
-    document.querySelector('.auth-container').style.display = 'none';
-    container.style.display = 'block';
-    loadUserData();
+    const user = auth.currentUser;
+    if (user && user.emailVerified) {
+        document.querySelector('.auth-container').style.display = 'none';
+        container.style.display = 'block';
+        loadUserData();
+    } else if (user) {
+        authMessage.textContent = 'Please verify your email to access the app.';
+    }
 }
 
 // Load User Data from Firestore
@@ -153,8 +196,4 @@ function startMining() {
 auth.onAuthStateChanged((user) => {
     if (user) {
         showApp();
-    } else {
-        document.querySelector('.auth-container').style.display = 'block';
-        container.style.display = 'none';
-    }
-});
+   
