@@ -20,6 +20,7 @@ const passwordInput = document.getElementById('password');
 const signupButton = document.getElementById('signup-button');
 const loginButton = document.getElementById('login-button');
 const authMessage = document.getElementById('auth-message');
+const googleSignInButton = document.getElementById('google-signin-button');
 const container = document.querySelector('.container');
 const adButtons = document.querySelectorAll('.ad-button');
 const mineButton = document.querySelector('.mine-button');
@@ -48,8 +49,22 @@ signupButton.addEventListener('click', () => {
             authMessage.textContent = error.message;
         });
 });
+
+// Log In
+loginButton.addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            authMessage.textContent = 'Login successful!';
+            showApp();
+        })
+        .catch((error) => {
+            authMessage.textContent = error.message;
+        });
+});
+
 // Google Sign-In
-const googleSignInButton = document.getElementById('google-signin-button');
 googleSignInButton.addEventListener('click', () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
@@ -60,20 +75,6 @@ googleSignInButton.addEventListener('click', () => {
                 miningProgress: 0
             }, { merge: true }); // Use merge to avoid overwriting existing data
             authMessage.textContent = 'Google Sign-In successful!';
-            showApp();
-        })
-        .catch((error) => {
-            authMessage.textContent = error.message;
-        });
-});
-
-// Log In
-loginButton.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-            authMessage.textContent = 'Login successful!';
             showApp();
         })
         .catch((error) => {
@@ -132,3 +133,28 @@ mineButton.addEventListener('click', () => {
 // Start Mining
 function startMining() {
     const interval = setInterval(() => {
+        timer--;
+        const hours = Math.floor(timer / 3600);
+        const minutes = Math.floor((timer % 3600) / 60);
+        const seconds = timer % 60;
+        timerDisplay.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timer <= 0) {
+            clearInterval(interval);
+            mining = false;
+            balance += 30;
+            updateBalance();
+            timer = 86400; // Reset timer
+        }
+    }, 1000);
+}
+
+// Check Auth State
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        showApp();
+    } else {
+        document.querySelector('.auth-container').style.display = 'block';
+        container.style.display = 'none';
+    }
+});
