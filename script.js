@@ -17,8 +17,10 @@ const db = firebase.firestore();
 // DOM Elements
 const firstNameInput = document.getElementById('first-name');
 const lastNameInput = document.getElementById('last-name');
-const emailInput = document.getElementById('email');
-const passwordInput = document.getElementById('password');
+const signupEmailInput = document.getElementById('signup-email');
+const signupPasswordInput = document.getElementById('signup-password');
+const loginEmailInput = document.getElementById('login-email');
+const loginPasswordInput = document.getElementById('login-password');
 const signupButton = document.getElementById('signup-button');
 const loginButton = document.getElementById('login-button');
 const authMessage = document.getElementById('auth-message');
@@ -28,17 +30,32 @@ const adButtons = document.querySelectorAll('.ad-button');
 const mineButton = document.querySelector('.mine-button');
 const balanceDisplay = document.getElementById('balance');
 const timerDisplay = document.getElementById('timer');
+const signupForm = document.getElementById('signup-form');
+const loginForm = document.getElementById('login-form');
+const toggleSignup = document.getElementById('toggle-signup');
+const toggleLogin = document.getElementById('toggle-login');
 
 let balance = 0;
 let mining = false;
 let timer = 86400; // 24 hours in seconds
 
+// Toggle between Sign Up and Log In forms
+toggleSignup.addEventListener('click', () => {
+    signupForm.style.display = 'block';
+    loginForm.style.display = 'none';
+});
+
+toggleLogin.addEventListener('click', () => {
+    signupForm.style.display = 'none';
+    loginForm.style.display = 'block';
+});
+
 // Sign Up with Email/Password
 signupButton.addEventListener('click', () => {
     const firstName = firstNameInput.value;
     const lastName = lastNameInput.value;
-    const email = emailInput.value;
-    const password = passwordInput.value;
+    const email = signupEmailInput.value;
+    const password = signupPasswordInput.value;
 
     console.log("Sign Up Button Clicked"); // Debugging
     console.log("First Name:", firstName); // Debugging
@@ -48,6 +65,7 @@ signupButton.addEventListener('click', () => {
 
     if (!firstName || !lastName || !email || !password) {
         authMessage.textContent = 'Please fill in all fields.';
+        console.log("Validation Failed: Missing Fields"); // Debugging
         return;
     }
 
@@ -89,10 +107,15 @@ signupButton.addEventListener('click', () => {
         });
 });
 
-// Log In
+// Log In with Email/Password
 loginButton.addEventListener('click', () => {
-    const email = emailInput.value;
-    const password = passwordInput.value;
+    const email = loginEmailInput.value;
+    const password = loginPasswordInput.value;
+
+    console.log("Log In Button Clicked"); // Debugging
+    console.log("Email:", email); // Debugging
+    console.log("Password:", password); // Debugging
+
     auth.signInWithEmailAndPassword(email, password)
         .then(() => {
             authMessage.textContent = 'Login successful!';
@@ -100,6 +123,7 @@ loginButton.addEventListener('click', () => {
         })
         .catch((error) => {
             authMessage.textContent = error.message;
+            console.error("Error Logging In:", error); // Debugging
         });
 });
 
